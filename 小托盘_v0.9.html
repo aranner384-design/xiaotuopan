@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>小托盘 · v0.9 模板化版本</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "PingFang SC", system-ui, sans-serif;
+            background: #f7f5f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            transition: background 0.25s;
+        }
+        body.dark { background: #1e1c1a; }
+        .app {
+            max-width: 720px;
+            width: 100%;
+            background: #fff;
+            border-radius: 32px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            transition: background 0.25s, color 0.25s;
+        }
+        body.dark .app { background: #2a2724; color: #ece5dc; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        h1 { font-size: 22px; font-weight: 500; }
+        .dark-toggle {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+            transition: 0.15s;
+        }
+        .dark-toggle:hover { background: #f0ede8; }
+        body.dark .dark-toggle:hover { background: #3f3a34; }
+        .sub {
+            font-size: 14px;
+            color: #888;
+            border-left: 2px solid #ddd;
+            padding-left: 12px;
+            margin-bottom: 16px;
+        }
+        body.dark .sub { color: #b0a69a; border-left-color: #4f4842; }
+
+        .category-manage {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .category-manage input {
+            flex: 1;
+            min-width: 100px;
+            padding: 6px 12px;
+            border-radius: 40px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            background: #fcfaf7;
+        }
+        body.dark .category-manage input {
+            background: #312d28;
+            border-color: #4a443e;
+            color: #ece5dc;
+        }
+        .category-manage input:focus { outline: none; border-color: #b0a89e; }
+        .cat-mgmt-btn {
+            background: #f0ede8;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.15s;
+            white-space: nowrap;
+        }
+        body.dark .cat-mgmt-btn { background: #3a3530; color: #e4ddd4; }
+        .cat-mgmt-btn:hover { background: #e0d8ce; }
+        body.dark .cat-mgmt-btn:hover { background: #4f4842; }
+
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .cat-btn {
+            background: #f0ede8;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        body.dark .cat-btn { background: #3a3530; color: #e4ddd4; }
+        .cat-btn.active { background: #d6cdc0; color: #1f1c18; }
+        body.dark .cat-btn.active { background: #6b6258; color: #f2ede6; }
+        .cat-btn .cat-edit, .cat-btn .cat-del {
+            font-size: 12px;
+            opacity: 0.5;
+            cursor: pointer;
+            margin-left: 2px;
+        }
+        .cat-btn .cat-edit:hover { opacity: 1; }
+        .cat-btn .cat-del:hover { opacity: 1; color: #c44; }
+
+        .search-box { margin-bottom: 12px; }
+        .search-box input {
+            width: 100%;
+            padding: 8px 14px;
+            border-radius: 40px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            background: #fcfaf7;
+            transition: 0.15s;
+        }
+        body.dark .search-box input {
+            background: #312d28;
+            border-color: #4a443e;
+            color: #ece5dc;
+        }
+        .search-box input:focus { outline: none; border-color: #b0a89e; }
+
+        .item-list {
+            background: #fcfaf7;
+            border-radius: 16px;
+            padding: 6px 6px 2px;
+            border: 1px solid #ede8e0;
+            margin-bottom: 10px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        body.dark .item-list { background: #312d28; border-color: #4a443e; }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px 6px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .item-row:hover { background: #ede8e0; }
+        body.dark .item-row:hover { background: #3f3a34; }
+        .item-row.active { background: #e3dbd0; }
+        body.dark .item-row.active { background: #4f4842; }
+        .item-row .label-area {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .tpl-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 20px;
+            background: #e3dbd0;
+            color: #555;
+            flex-shrink: 0;
+        }
+        body.dark .tpl-badge { background: #4f4842; color: #ccc; }
+        .item-row .label {
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .item-row .item-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .item-row .item-actions button {
+            background: none;
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+            color: #999;
+            padding: 0 4px;
+        }
+        .item-row .item-actions button:hover { color: #444; }
+        body.dark .item-row .item-actions button:hover { color: #ccc; }
+        .item-row .item-actions .del-btn:hover { color: #c44; }
+
+        .add-area {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        .add-area select {
+            padding: 5px 8px;
+            border-radius: 40px;
+            border: 1px solid #ddd;
+            font-size: 12px;
+            background: #fcfaf7;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        body.dark .add-area select {
+            background: #312d28;
+            border-color: #4a443e;
+            color: #ece5dc;
+        }
+        .add-area input {
+            flex: 1;
+            min-width: 0;
+            padding: 5px 10px;
+            border-radius: 40px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            background: #fcfaf7;
+        }
+        body.dark .add-area input {
+            background: #312d28;
+            border-color: #4a443e;
+            color: #ece5dc;
+        }
+        .add-area input:focus, .add-area select:focus {
+            outline: none;
+            border-color: #b0a89e;
+        }
+        .add-btn {
+            background: #d6cdc0;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 40px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        body.dark .add-btn { background: #6b6258; color: #f2ede6; }
+        .add-btn:hover { background: #c4b8a8; }
+
+        .section-card {
+            background: #faf8f5;
+            border-radius: 18px;
+            padding: 14px 16px;
+            border: 1px solid #ede8e0;
+            margin-bottom: 14px;
+        }
+        body.dark .section-card { background: #2a2622; border-color: #423d37; }
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #777;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        body.dark .section-title { color: #b0a69a; }
+        .field-group { margin-bottom: 10px; }
+        .field-group:last-child { margin-bottom: 0; }
+        .field-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+            display: block;
+        }
+        body.dark .field-label { color: #a0968a; }
+        input.text-input, textarea.text-input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid #ede8e0;
+            font-size: 14px;
+            line-height: 1.6;
+            font-family: inherit;
+            background: #fff;
+            transition: border-color 0.1s;
+        }
+        textarea.text-input {
+            resize: none;
+            overflow-y: auto;
+            max-height: 450px;
+        }
+        body.dark input.text-input, body.dark textarea.text-input {
+            background: #312d28;
+            border-color: #4a443e;
+            color: #ece5dc;
+        }
+        input.text-input:focus, textarea.text-input:focus {
+            outline: none;
+            border-color: #b0a89e;
+        }
+        .meta-info {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 8px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        body.dark .meta-info { color: #6b6560; }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .btn-primary {
+            background: #2d2a24;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 60px;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 80px;
+        }
+        body.dark .btn-primary { background: #d6cdc0; color: #1f1c18; }
+        .btn-primary:hover { opacity: 0.85; }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #ccc;
+            color: #444;
+            padding: 10px 20px;
+            border-radius: 60px;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 80px;
+        }
+        body.dark .btn-secondary { border-color: #5f5850; color: #d0c8bc; }
+        .btn-secondary:hover { background: #f0ede8; }
+        body.dark .btn-secondary:hover { background: #3f3a34; }
+
+        .data-mgmt {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .data-mgmt button {
+            background: transparent;
+            border: 1px solid #ddd;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666;
+            transition: 0.15s;
+        }
+        body.dark .data-mgmt button { border-color: #4f4842; color: #b0a69a; }
+        .data-mgmt button:hover { background: #f0ede8; }
+        body.dark .data-mgmt button:hover { background: #3f3a34; }
+        .footer {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+        }
+        body.dark .footer { color: #6b6560; }
+
+        @media (max-width: 500px) {
+            .app { padding: 16px 14px 24px; }
+            .category-tabs { gap: 4px; }
+            .cat-btn { font-size: 12px; padding: 4px 12px; }
+            .item-row .label { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app" id="app">
+    <div class="header">
+        <h1>🧺 小托盘</h1>
+        <button class="dark-toggle" id="darkToggle">🌙</button>
+    </div>
+    <div class="sub">v0.9 · 模板化版本 · 纯本地</div>
+
+    <div class="category-manage">
+        <input type="text" id="newCategoryInput" placeholder="新分类名称..." />
+        <button class="cat-mgmt-btn" id="addCategoryBtn">➕ 添加分类</button>
+    </div>
+
+    <div class="category-tabs" id="categoryTabs"></div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 搜索（题目 / 框架 / 草稿 / 正文 / 批评 / 范文 / 内容）..." />
+    </div>
+
+    <div class="item-list" id="itemList"></div>
+
+    <div class="add-area">
+        <select id="templateSelect">
+            <option value="writing">📝 写作</option>
+            <option value="logic">🧠 逻辑</option>
+            <option value="daily">🌙 日常</option>
+            <option value="reference">📚 参考</option>
+        </select>
+        <input type="text" id="newTitleInput" placeholder="新作品标题 / 题目..." />
+        <button class="add-btn" id="addBtn">➕ 新建作品</button>
+    </div>
+
+    <div id="editorContainer">
+        <div class="section-card" id="infoCard">
+            <div class="section-title"><span>📋 作品信息</span></div>
+            <div class="field-group">
+                <span class="field-label" id="titleLabel">🏷️ 题目</span>
+                <input type="text" class="text-input" id="itemTitle" placeholder="点击激活恢复原本标题..." />
+            </div>
+            <div class="field-group" id="frameworkGroup">
+                <span class="field-label">🧩 题材 / 框架</span>
+                <textarea class="text-input" id="itemFramework" placeholder="场景、结构、逻辑框架、留白设计..." style="min-height: 50px;"></textarea>
+            </div>
+            <div class="meta-info" id="metaInfo">
+                <span>创建: --</span>
+                <span>修改: --</span>
+            </div>
+        </div>
+
+        <div class="section-card" id="draftCard">
+            <div class="section-title">✍️ 草稿</div>
+            <textarea class="text-input" id="draftContent" placeholder="在此输入最初的版本或随手记录的草稿..." style="min-height: 90px;"></textarea>
+        </div>
+
+        <div class="section-card" id="critiqueCard">
+            <div class="section-title">🧐 严师批评 / 修改意见</div>
+            <textarea class="text-input" id="critiqueContent" placeholder="针对草稿记录逻辑漏洞、语病、改写建议..." style="min-height: 70px;"></textarea>
+        </div>
+
+        <div class="section-card" id="bodyCard">
+            <div class="section-title" id="bodyCardTitle">✍️ 修改后正文</div>
+            <textarea class="text-input" id="bodyContent" placeholder="根据严师批评修改之后的正式版本..." style="min-height: 110px;"></textarea>
+        </div>
+
+        <div class="section-card" id="refCard">
+            <div class="section-title" id="refCardTitle">📖 对照范文 / 针对性参考材料</div>
+            <textarea class="text-input" id="refContent" placeholder="本作品的参考范文、优秀片段或特定素材..." style="min-height: 70px;"></textarea>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn-primary" id="copyBtn">📋 复制主要内容</button>
+        <button class="btn-secondary" id="renameBtn">✏️ 重命名标题</button>
+        <button class="btn-secondary" id="clearBtn" title="临时隐藏标题与框架 preview，点击输入框即可恢复">临时隐藏预览</button>
+    </div>
+
+    <div class="data-mgmt">
+        <button id="exportBtn">📤 导出数据</button>
+        <button id="importBtn">📥 导入数据</button>
+        <input type="file" id="importFile" accept=".json" style="display:none;" />
+    </div>
+
+    <div class="footer">⚡ 纯本地 · v0.9 模板化版本</div>
+</div>
+
+<script>
+const DEFAULT_CATEGORIES = ['📝 写作', '🧠 逻辑', '🌙 日常', '📚 参考'];
+
+const TEMPLATE_NAMES = {
+    writing: '写作',
+    logic: '逻辑',
+    daily: '日常',
+    reference: '参考'
+};
+
+function getDefaultData() {
+    return {
+        categories: [...DEFAULT_CATEGORIES],
+        items: {
+            '📝 写作': [
+                { id: 'w1', template: 'writing', title: '🏪 便利店', framework: '【场景】深夜便利店\n【氛围】冷光与暖光交织', draft: '深夜一点，便利店门开了。她站在货架前挑饭团，身后有人走过来。', body: '深夜一点，便利店的自动门随着叮咚一声拉开。玻璃窗上蒙着一层薄薄的雨雾，室内白炽灯照得刺眼。她站在货架前挑着饭团，身后脚步声由远及近，停在离她半步远的位置。', critique: '初稿描述尚可，但互动节奏太快，修改后应多给环境描摹留出呼吸感。', ref: '范文参考：高菅《深夜营业》第一章。', createdAt: Date.now(), updatedAt: Date.now() },
+            ],
+            '🧠 逻辑': [
+                { id: 'l1', template: 'logic', title: '🥔 土豆战况', framework: '【卡片结构】魔王招式 / 防御状态', draft: '', body: '魔王今日招式：滑坡谬误\n土豆防御：拆解前提条件\n下一回合：归谬法应对', critique: '', ref: '日常卡片参考库', createdAt: Date.now(), updatedAt: Date.now() }
+            ],
+            '🌙 日常': [
+                { id: 'd1', template: 'daily', title: '🌚 卡网打卡', framework: '', draft: '', body: '准点卡住，服务器又喘上了。_(:з」∠)_', critique: '', ref: '', createdAt: Date.now(), updatedAt: Date.now() }
+            ],
+            '📚 参考': [
+                { id: 'r1', template: 'reference', title: '📖 通用范文库', framework: '', draft: '', body: '此处可保存与具体作品无关的好文或通用素材库。', critique: '', ref: '', createdAt: Date.now(), updatedAt: Date.now() }
+            ]
+        }
+    };
+}
+
+let data = loadData();
+
+function normalizeItem(raw) {
+    return {
+        id: raw.id || generateId(),
+        template: raw.template || 'writing',
+        title: raw.title || raw.label || '未命名作品',
+        framework: raw.framework || '',
+        draft: raw.draft || '',
+        body: raw.body || '',
+        critique: raw.critique || '',
+        ref: raw.ref || '',
+        createdAt: raw.createdAt || Date.now(),
+        updatedAt: raw.updatedAt || Date.now()
+    };
+}
+
+function loadData() {
+    try {
+        const raw = localStorage.getItem('xiaotuopan_v09') || localStorage.getItem('xiaotuopan_v08') || localStorage.getItem('xiaotuopan_v07');
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            const result = {
+                categories: parsed.categories || [...DEFAULT_CATEGORIES],
+                items: {}
+            };
+            result.categories.forEach(cat => {
+                result.items[cat] = [];
+                if (parsed.items && parsed.items[cat]) {
+                    result.items[cat] = parsed.items[cat].map(normalizeItem);
+                }
+            });
+            return result;
+        }
+    } catch (e) {
+        console.error('读取存储失败，重置为默认数据', e);
+    }
+    return getDefaultData();
+}
+
+function saveData() {
+    localStorage.setItem('xiaotuopan_v09', JSON.stringify(data));
+}
+
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function formatTime(ts) {
+    if (!ts) return '--';
+    const d = new Date(ts);
+    return d.toLocaleString('zh-CN', { hour12: false });
+}
+
+let currentCategory = data.categories[0] || '📝 写作';
+let currentItem = null;
+let searchQuery = '';
+let isPreviewHidden = false;
+
+const categoryTabs = document.getElementById('categoryTabs');
+const itemListEl = document.getElementById('itemList');
+const searchInput = document.getElementById('searchInput');
+const newTitleInput = document.getElementById('newTitleInput');
+const newCategoryInput = document.getElementById('newCategoryInput');
+const templateSelect = document.getElementById('templateSelect');
+
+const infoCard = document.getElementById('infoCard');
+const titleLabel = document.getElementById('titleLabel');
+const itemTitleEl = document.getElementById('itemTitle');
+const frameworkGroup = document.getElementById('frameworkGroup');
+const itemFrameworkEl = document.getElementById('itemFramework');
+
+const draftCard = document.getElementById('draftCard');
+const draftEl = document.getElementById('draftContent');
+
+const critiqueCard = document.getElementById('critiqueCard');
+const critiqueEl = document.getElementById('critiqueContent');
+
+const bodyCard = document.getElementById('bodyCard');
+const bodyCardTitle = document.getElementById('bodyCardTitle');
+const bodyEl = document.getElementById('bodyContent');
+
+const refCard = document.getElementById('refCard');
+const refCardTitle = document.getElementById('refCardTitle');
+const refEl = document.getElementById('refContent');
+
+const metaInfo = document.getElementById('metaInfo');
+const allTextareas = [itemFrameworkEl, draftEl, critiqueEl, bodyEl, refEl];
+
+function autoResizeTextarea(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+}
+
+function resizeAllTextareas() {
+    allTextareas.forEach(el => autoResizeTextarea(el));
+}
+
+allTextareas.forEach(el => {
+    el.addEventListener('input', () => autoResizeTextarea(el));
+});
+
+function applyTemplateLayout(template) {
+    infoCard.style.display = 'block';
+    draftCard.style.display = 'block';
+    critiqueCard.style.display = 'block';
+    bodyCard.style.display = 'block';
+    refCard.style.display = 'block';
+
+    if (template === 'writing') {
+        titleLabel.textContent = '🏷️ 题目';
+        frameworkGroup.style.display = 'block';
+        bodyCardTitle.textContent = '✍️ 修改后正文';
+        bodyEl.placeholder = '根据严师批评修改之后的正式版本...';
+        refCardTitle.textContent = '📖 对照范文 / 针对性参考材料';
+        refEl.placeholder = '本作品的参考范文、优秀片段或特定素材...';
+    } else if (template === 'logic') {
+        titleLabel.textContent = '🏷️ 题目';
+        frameworkGroup.style.display = 'block';
+        draftCard.style.display = 'none';
+        critiqueCard.style.display = 'none';
+        bodyCardTitle.textContent = '📝 内容';
+        bodyEl.placeholder = '记录核心逻辑推导过程、卡片结构或推论...';
+        refCardTitle.textContent = '📖 参考材料';
+        refEl.placeholder = '相关的参考链接或素材说明...';
+    } else if (template === 'daily') {
+        titleLabel.textContent = '🏷️ 标题';
+        frameworkGroup.style.display = 'none';
+        draftCard.style.display = 'none';
+        critiqueCard.style.display = 'none';
+        bodyCardTitle.textContent = '📝 内容';
+        bodyEl.placeholder = '记录随手写下的日常点滴...';
+        refCard.style.display = 'none';
+    } else if (template === 'reference') {
+        titleLabel.textContent = '🏷️ 标题';
+        frameworkGroup.style.display = 'none';
+        draftCard.style.display = 'none';
+        critiqueCard.style.display = 'none';
+        bodyCardTitle.textContent = '📖 内容 / 笔记';
+        bodyEl.placeholder = '记录收集到的优质范文、金句或文章笔记...';
+        refCard.style.display = 'none';
+    }
+    setTimeout(resizeAllTextareas, 0);
+}
+
+function renderCategories() {
+    categoryTabs.innerHTML = '';
+    data.categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'cat-btn' + (cat === currentCategory ? ' active' : '');
+        btn.innerHTML = `
+            ${cat}
+            <span class="cat-edit" data-cat="${cat}" title="重命名">✎</span>
+            <span class="cat-del" data-cat="${cat}" title="删除分类">✖</span>
+        `;
+        btn.addEventListener('click', (e) => {
+            if (e.target.closest('.cat-edit') || e.target.closest('.cat-del')) return;
+            currentCategory = cat;
+            currentItem = null;
+            clearForm();
+            renderAll();
+        });
+        categoryTabs.appendChild(btn);
+    });
+
+    document.querySelectorAll('.cat-edit').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const oldName = el.dataset.cat;
+            const newName = prompt('重命名分类：', oldName);
+            if (newName && newName.trim() && newName.trim() !== oldName) {
+                renameCategory(oldName, newName.trim());
+            }
+        });
+    });
+
+    document.querySelectorAll('.cat-del').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const catName = el.dataset.cat;
+            if (data.categories.length <= 1) {
+                alert('至少保留一个分类');
+                return;
+            }
+            if (confirm(`确定删除分类「${catName}」及其所属所有作品吗？`)) {
+                deleteCategory(catName);
+            }
+        });
+    });
+}
+
+function renderItems() {
+    const items = data.items[currentCategory] || [];
+    const query = searchQuery.trim().toLowerCase();
+    let filtered = items;
+
+    if (query) {
+        filtered = items.filter(item =>
+            (item.title || '').toLowerCase().includes(query) ||
+            (item.framework || '').toLowerCase().includes(query) ||
+            (item.draft || '').toLowerCase().includes(query) ||
+            (item.body || '').toLowerCase().includes(query) ||
+            (item.critique || '').toLowerCase().includes(query) ||
+            (item.ref || '').toLowerCase().includes(query)
+        );
+    }
+
+    itemListEl.innerHTML = '';
+
+    if (filtered.length === 0) {
+        const empty = document.createElement('div');
+        empty.style.padding = '12px';
+        empty.style.color = '#aaa';
+        empty.style.fontSize = '13px';
+        empty.textContent = query ? '没有找到符合条件的作品' : '当前分类暂无作品';
+        itemListEl.appendChild(empty);
+        return;
+    }
+
+    filtered.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'item-row' + (currentItem && currentItem.id === item.id ? ' active' : '');
+
+        const labelArea = document.createElement('div');
+        labelArea.className = 'label-area';
+
+        const badge = document.createElement('span');
+        badge.className = 'tpl-badge';
+        const tplKey = item.template || 'writing';
+        badge.textContent = TEMPLATE_NAMES[tplKey] || '写作';
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'label';
+        labelSpan.textContent = item.title;
+
+        labelArea.appendChild(badge);
+        labelArea.appendChild(labelSpan);
+
+        const actions = document.createElement('div');
+        actions.className = 'item-actions';
+
+        const renameBtn = document.createElement('button');
+        renameBtn.textContent = '✎';
+        renameBtn.title = '重命名';
+        renameBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            renameItem(item);
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'del-btn';
+        delBtn.textContent = '✖';
+        delBtn.title = '删除';
+        delBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm(`确定删除作品「${item.title}」吗？`)) {
+                deleteItem(item);
+            }
+        });
+
+        actions.appendChild(renameBtn);
+        actions.appendChild(delBtn);
+        row.appendChild(labelArea);
+        row.appendChild(actions);
+
+        row.addEventListener('click', () => {
+            currentItem = item;
+            loadItemToEditor(item);
+            renderAll();
+        });
+
+        itemListEl.appendChild(row);
+    });
+}
+
+function renderAll() {
+    renderCategories();
+    renderItems();
+    if (!currentItem) {
+        clearForm();
+    } else {
+        updateMetaInfo();
+    }
+}
+
+function loadItemToEditor(item) {
+    currentItem = item;
+    isPreviewHidden = false;
+    applyTemplateLayout(item.template || 'writing');
+    itemTitleEl.value = item.title || '';
+    itemFrameworkEl.value = item.framework || '';
+    draftEl.value = item.draft || '';
+    bodyEl.value = item.body || '';
+    critiqueEl.value = item.critique || '';
+    refEl.value = item.ref || '';
+    updateMetaInfo();
+    setTimeout(resizeAllTextareas, 0);
+}
+
+function clearForm() {
+    currentItem = null;
+    isPreviewHidden = false;
+    applyTemplateLayout('writing');
+    itemTitleEl.value = '';
+    itemFrameworkEl.value = '';
+    draftEl.value = '';
+    bodyEl.value = '';
+    critiqueEl.value = '';
+    refEl.value = '';
+    metaInfo.innerHTML = '<span>创建: --</span><span>修改: --</span>';
+    setTimeout(resizeAllTextareas, 0);
+}
+
+function updateMetaInfo() {
+    if (currentItem) {
+        metaInfo.innerHTML = `
+            <span>模板: ${TEMPLATE_NAMES[currentItem.template] || '写作'}</span>
+            <span>创建: ${formatTime(currentItem.createdAt)}</span>
+            <span>修改: ${formatTime(currentItem.updatedAt)}</span>
+        `;
+    } else {
+        metaInfo.innerHTML = '<span>创建: --</span><span>修改: --</span>';
+    }
+}
+
+function autoSaveCurrentContent() {
+    if (!currentItem) return;
+    const items = data.items[currentCategory] || [];
+    const found = items.find(it => it.id === currentItem.id);
+
+    if (found) {
+        if (!isPreviewHidden) {
+            found.title = itemTitleEl.value.trim() || currentItem.title;
+            found.framework = itemFrameworkEl.value;
+        }
+        found.draft = draftEl.value;
+        found.body = bodyEl.value;
+        found.critique = critiqueEl.value;
+        found.ref = refEl.value;
+        found.updatedAt = Date.now();
+
+        saveData();
+        currentItem = found;
+        updateMetaInfo();
+        renderItems();
+    }
+}
+
+function restorePreviewIfNeeded() {
+    if (isPreviewHidden && currentItem) {
+        isPreviewHidden = false;
+        itemTitleEl.value = currentItem.title || '';
+        itemFrameworkEl.value = currentItem.framework || '';
+        setTimeout(() => autoResizeTextarea(itemFrameworkEl), 0);
+    }
+}
+
+infoCard.addEventListener('click', restorePreviewIfNeeded);
+itemTitleEl.addEventListener('focus', restorePreviewIfNeeded);
+itemFrameworkEl.addEventListener('focus', restorePreviewIfNeeded);
+
+function addCategory(name) {
+    name = name.trim();
+    if (!name) return;
+    if (data.categories.includes(name)) {
+        alert('分类已存在');
+        return;
+    }
+    data.categories.push(name);
+    data.items[name] = [];
+    saveData();
+    currentCategory = name;
+    currentItem = null;
+    clearForm();
+    renderAll();
+    newCategoryInput.value = '';
+}
+
+function renameCategory(oldName, newName) {
+    if (data.categories.includes(newName)) {
+        alert('分类名已存在');
+        return;
+    }
+    const idx = data.categories.indexOf(oldName);
+    if (idx === -1) return;
+    data.categories[idx] = newName;
+    data.items[newName] = data.items[oldName] || [];
+    delete data.items[oldName];
+    if (currentCategory === oldName) currentCategory = newName;
+    saveData();
+    renderAll();
+}
+
+function deleteCategory(name) {
+    if (data.categories.length <= 1) return;
+    const idx = data.categories.indexOf(name);
+    if (idx === -1) return;
+    data.categories.splice(idx, 1);
+    delete data.items[name];
+    if (currentCategory === name) {
+        currentCategory = data.categories[0];
+        currentItem = null;
+        clearForm();
+    }
+    saveData();
+    renderAll();
+}
+
+function addItem(title) {
+    title = title.trim();
+    if (!title) return;
+    const template = templateSelect.value || 'writing';
+    const items = data.items[currentCategory] || [];
+
+    const newItem = normalizeItem({
+        id: generateId(),
+        template: template,
+        title: title,
+        framework: '',
+        draft: '',
+        body: '',
+        critique: '',
+        ref: '',
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+    });
+
+    items.push(newItem);
+    saveData();
+    newTitleInput.value = '';
+    currentItem = newItem;
+    loadItemToEditor(newItem);
+    renderAll();
+}
+
+function deleteItem(item) {
+    const items = data.items[currentCategory] || [];
+    const idx = items.findIndex(it => it.id === item.id);
+    if (idx === -1) return;
+    items.splice(idx, 1);
+    if (currentItem && currentItem.id === item.id) {
+        currentItem = null;
+        clearForm();
+    }
+    saveData();
+    renderAll();
+}
+
+function renameItem(item) {
+    const newTitle = prompt('重命名作品标题：', item.title);
+    if (newTitle && newTitle.trim() && newTitle.trim() !== item.title) {
+        item.title = newTitle.trim();
+        item.updatedAt = Date.now();
+        saveData();
+        if (currentItem && currentItem.id === item.id) {
+            if (!isPreviewHidden) itemTitleEl.value = item.title;
+            updateMetaInfo();
+        }
+        renderAll();
+    }
+}
+
+document.getElementById('addCategoryBtn').addEventListener('click', () => {
+    addCategory(newCategoryInput.value);
+});
+
+newCategoryInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addCategory(newCategoryInput.value);
+});
+
+document.getElementById('addBtn').addEventListener('click', () => {
+    addItem(newTitleInput.value);
+});
+
+newTitleInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addItem(newTitleInput.value);
+});
+
+searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value;
+    renderItems();
+});
+
+let saveTimer = null;
+[itemTitleEl, itemFrameworkEl, draftEl, bodyEl, critiqueEl, refEl].forEach(el => {
+    el.addEventListener('input', () => {
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+            autoSaveCurrentContent();
+            saveTimer = null;
+        }, 300);
+    });
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+    const text = bodyEl.value.trim() || draftEl.value.trim();
+    if (!text) {
+        alert('当前内容为空');
+        return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const orig = btn.textContent;
+        btn.textContent = '✅ 已复制内容';
+        setTimeout(() => btn.textContent = orig, 1500);
+    }).catch(() => {
+        bodyEl.select();
+        document.execCommand('copy');
+        alert('已复制');
+    });
+});
+
+document.getElementById('renameBtn').addEventListener('click', () => {
+    if (!currentItem) {
+        alert('请先选择一个作品');
+        return;
+    }
+    renameItem(currentItem);
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+    isPreviewHidden = true;
+    itemTitleEl.value = '';
+    itemFrameworkEl.value = '';
+    setTimeout(() => autoResizeTextarea(itemFrameworkEl), 0);
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+    const exportData = {
+        version: '0.9',
+        exportedAt: Date.now(),
+        data: data
+    };
+    const json = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.download = `小托盘备份_v0.9_${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+
+    reader.onload = (ev) => {
+        try {
+            const imported = JSON.parse(ev.target.result);
+            if (!imported.data || !imported.data.categories || !imported.data.items) {
+                alert('无效的备份文件');
+                return;
+            }
+            if (!confirm('导入将覆盖当前所有数据，确认继续吗？')) return;
+
+            data = {
+                categories: imported.data.categories,
+                items: {}
+            };
+
+            data.categories.forEach(cat => {
+                data.items[cat] = (imported.data.items[cat] || []).map(normalizeItem);
+            });
+
+            saveData();
+            currentCategory = data.categories[0] || '📝 写作';
+            currentItem = null;
+            clearForm();
+            renderAll();
+            alert('数据导入成功！');
+        } catch (err) {
+            alert('文件解析失败：' + err.message);
+        }
+    };
+
+    reader.readAsText(file);
+    e.target.value = '';
+});
+
+const darkToggle = document.getElementById('darkToggle');
+let isDark = localStorage.getItem('xiaotuopan_dark') === 'true';
+
+if (isDark) {
+    document.body.classList.add('dark');
+    darkToggle.textContent = '☀️';
+}
+
+darkToggle.addEventListener('click', () => {
+    isDark = !isDark;
+    document.body.classList.toggle('dark');
+    darkToggle.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('xiaotuopan_dark', isDark);
+});
+
+renderAll();
+
+if (data.items[currentCategory] && data.items[currentCategory].length > 0) {
+    const first = data.items[currentCategory][0];
+    currentItem = first;
+    loadItemToEditor(first);
+    renderAll();
+}
+</script>
+</body>
+</html>
