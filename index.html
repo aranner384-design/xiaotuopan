@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>小托盘 · v0.9 模板化版本</title>
+    <title>小托盘 · v1.0</title>
     <style>
         * {
             margin: 0;
@@ -59,19 +59,10 @@
 
         .category-manage {
             display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
+            justify-content: flex-end;
+            margin-bottom: 8px;
         }
-        .category-manage input {
-            flex: 1;
-            min-width: 100px;
-            padding: 6px 12px;
-            border-radius: 40px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-            background: #fcfaf7;
-        }
+        
         body.dark .category-manage input {
             background: #312d28;
             border-color: #4a443e;
@@ -204,42 +195,10 @@
 
         .add-area {
             display: flex;
-            gap: 6px;
+            justify-content: flex-end;
             margin-bottom: 16px;
-            align-items: center;
         }
-        .add-area select {
-            padding: 5px 8px;
-            border-radius: 40px;
-            border: 1px solid #ddd;
-            font-size: 12px;
-            background: #fcfaf7;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        body.dark .add-area select {
-            background: #312d28;
-            border-color: #4a443e;
-            color: #ece5dc;
-        }
-        .add-area input {
-            flex: 1;
-            min-width: 0;
-            padding: 5px 10px;
-            border-radius: 40px;
-            border: 1px solid #ddd;
-            font-size: 13px;
-            background: #fcfaf7;
-        }
-        body.dark .add-area input {
-            background: #312d28;
-            border-color: #4a443e;
-            color: #ece5dc;
-        }
-        .add-area input:focus, .add-area select:focus {
-            outline: none;
-            border-color: #b0a89e;
-        }
+
         .add-btn {
             background: #d6cdc0;
             border: none;
@@ -383,6 +342,11 @@
             .cat-btn { font-size: 12px; padding: 4px 12px; }
             .item-row .label { font-size: 13px; }
         }
+    .field-label-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+        .field-label-row .field-label { margin-bottom:0; }
+        .copy-field-btn { background:none; border:none; padding:2px 4px; font-size:12px; cursor:pointer; opacity:.65; }
+        .copy-field-btn:hover { opacity:1; }
+        .category-manage .cat-mgmt-btn { width:28px; height:28px; padding:0; font-size:13px; }
     </style>
 </head>
 <body>
@@ -391,41 +355,29 @@
         <h1>🧺 小托盘</h1>
         <button class="dark-toggle" id="darkToggle">🌙</button>
     </div>
-    <div class="sub">v0.9 · 模板化版本 · 纯本地</div>
+    <div class="sub">v1.0 · UI 优化版 · 纯本地</div>
 
     <div class="category-manage">
-        <input type="text" id="newCategoryInput" placeholder="新分类名称..." />
-        <button class="cat-mgmt-btn" id="addCategoryBtn">➕ 添加分类</button>
+        <button class="cat-mgmt-btn" id="addCategoryBtn" title="添加分类">➕</button>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 搜索作品 / 内容..." />
     </div>
 
     <div class="category-tabs" id="categoryTabs"></div>
 
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="🔍 搜索（题目 / 框架 / 草稿 / 正文 / 批评 / 范文 / 内容）..." />
-    </div>
-
     <div class="item-list" id="itemList"></div>
 
     <div class="add-area">
-        <select id="templateSelect">
-            <option value="writing">📝 写作</option>
-            <option value="logic">🧠 逻辑</option>
-            <option value="daily">🌙 日常</option>
-            <option value="reference">📚 参考</option>
-        </select>
-        <input type="text" id="newTitleInput" placeholder="新作品标题 / 题目..." />
         <button class="add-btn" id="addBtn">➕ 新建作品</button>
     </div>
 
-    <div id="editorContainer">
+    <div id="editorContainer" style="display:none;">
         <div class="section-card" id="infoCard">
             <div class="section-title"><span>📋 作品信息</span></div>
-            <div class="field-group">
-                <span class="field-label" id="titleLabel">🏷️ 题目</span>
-                <input type="text" class="text-input" id="itemTitle" placeholder="点击激活恢复原本标题..." />
-            </div>
             <div class="field-group" id="frameworkGroup">
-                <span class="field-label">🧩 题材 / 框架</span>
+                <div class="field-label-row"><span class="field-label">🧩 题材 / 框架</span><button class="copy-field-btn" type="button" data-copy-target="itemFramework" title="复制">📋</button></div>
                 <textarea class="text-input" id="itemFramework" placeholder="场景、结构、逻辑框架、留白设计..." style="min-height: 50px;"></textarea>
             </div>
             <div class="meta-info" id="metaInfo">
@@ -435,30 +387,24 @@
         </div>
 
         <div class="section-card" id="draftCard">
-            <div class="section-title">✍️ 草稿</div>
+            <div class="section-title"><span>✍️ 草稿</span><button class="copy-field-btn" type="button" data-copy-target="draftContent" title="复制">📋</button></div>
             <textarea class="text-input" id="draftContent" placeholder="在此输入最初的版本或随手记录的草稿..." style="min-height: 90px;"></textarea>
         </div>
 
         <div class="section-card" id="critiqueCard">
-            <div class="section-title">🧐 严师批评 / 修改意见</div>
+            <div class="section-title"><span>🧐 严师批评 / 修改意见</span><button class="copy-field-btn" type="button" data-copy-target="critiqueContent" title="复制">📋</button></div>
             <textarea class="text-input" id="critiqueContent" placeholder="针对草稿记录逻辑漏洞、语病、改写建议..." style="min-height: 70px;"></textarea>
         </div>
 
         <div class="section-card" id="bodyCard">
-            <div class="section-title" id="bodyCardTitle">✍️ 修改后正文</div>
+            <div class="section-title" id="bodyCardTitle"><span>✍️ 修改后正文</span><button class="copy-field-btn" type="button" data-copy-target="bodyContent" title="复制">📋</button></div>
             <textarea class="text-input" id="bodyContent" placeholder="根据严师批评修改之后的正式版本..." style="min-height: 110px;"></textarea>
         </div>
 
         <div class="section-card" id="refCard">
-            <div class="section-title" id="refCardTitle">📖 对照范文 / 针对性参考材料</div>
+            <div class="section-title" id="refCardTitle"><span>📖 对照范文 / 针对性参考材料</span><button class="copy-field-btn" type="button" data-copy-target="refContent" title="复制">📋</button></div>
             <textarea class="text-input" id="refContent" placeholder="本作品的参考范文、优秀片段或特定素材..." style="min-height: 70px;"></textarea>
         </div>
-    </div>
-
-    <div class="actions">
-        <button class="btn-primary" id="copyBtn">📋 复制主要内容</button>
-        <button class="btn-secondary" id="renameBtn">✏️ 重命名标题</button>
-        <button class="btn-secondary" id="clearBtn" title="临时隐藏标题与框架 preview，点击输入框即可恢复">临时隐藏预览</button>
     </div>
 
     <div class="data-mgmt">
@@ -467,7 +413,7 @@
         <input type="file" id="importFile" accept=".json" style="display:none;" />
     </div>
 
-    <div class="footer">⚡ 纯本地 · v0.9 模板化版本</div>
+    <div class="footer">⚡ 纯本地 · v1.0 UI 优化版</div>
 </div>
 
 <script>
@@ -519,7 +465,7 @@ function normalizeItem(raw) {
 
 function loadData() {
     try {
-        const raw = localStorage.getItem('xiaotuopan_v09') || localStorage.getItem('xiaotuopan_v08') || localStorage.getItem('xiaotuopan_v07');
+        const raw = localStorage.getItem('xiaotuopan_v10') || localStorage.getItem('xiaotuopan_v09') || localStorage.getItem('xiaotuopan_v08') || localStorage.getItem('xiaotuopan_v07');
         if (raw) {
             const parsed = JSON.parse(raw);
             const result = {
@@ -541,7 +487,7 @@ function loadData() {
 }
 
 function saveData() {
-    localStorage.setItem('xiaotuopan_v09', JSON.stringify(data));
+    localStorage.setItem('xiaotuopan_v10', JSON.stringify(data));
 }
 
 function generateId() {
@@ -557,18 +503,12 @@ function formatTime(ts) {
 let currentCategory = data.categories[0] || '📝 写作';
 let currentItem = null;
 let searchQuery = '';
-let isPreviewHidden = false;
 
 const categoryTabs = document.getElementById('categoryTabs');
 const itemListEl = document.getElementById('itemList');
 const searchInput = document.getElementById('searchInput');
-const newTitleInput = document.getElementById('newTitleInput');
-const newCategoryInput = document.getElementById('newCategoryInput');
-const templateSelect = document.getElementById('templateSelect');
 
 const infoCard = document.getElementById('infoCard');
-const titleLabel = document.getElementById('titleLabel');
-const itemTitleEl = document.getElementById('itemTitle');
 const frameworkGroup = document.getElementById('frameworkGroup');
 const itemFrameworkEl = document.getElementById('itemFramework');
 
@@ -611,14 +551,12 @@ function applyTemplateLayout(template) {
     refCard.style.display = 'block';
 
     if (template === 'writing') {
-        titleLabel.textContent = '🏷️ 题目';
         frameworkGroup.style.display = 'block';
         bodyCardTitle.textContent = '✍️ 修改后正文';
         bodyEl.placeholder = '根据严师批评修改之后的正式版本...';
         refCardTitle.textContent = '📖 对照范文 / 针对性参考材料';
         refEl.placeholder = '本作品的参考范文、优秀片段或特定素材...';
     } else if (template === 'logic') {
-        titleLabel.textContent = '🏷️ 题目';
         frameworkGroup.style.display = 'block';
         draftCard.style.display = 'none';
         critiqueCard.style.display = 'none';
@@ -627,7 +565,6 @@ function applyTemplateLayout(template) {
         refCardTitle.textContent = '📖 参考材料';
         refEl.placeholder = '相关的参考链接或素材说明...';
     } else if (template === 'daily') {
-        titleLabel.textContent = '🏷️ 标题';
         frameworkGroup.style.display = 'none';
         draftCard.style.display = 'none';
         critiqueCard.style.display = 'none';
@@ -635,7 +572,6 @@ function applyTemplateLayout(template) {
         bodyEl.placeholder = '记录随手写下的日常点滴...';
         refCard.style.display = 'none';
     } else if (template === 'reference') {
-        titleLabel.textContent = '🏷️ 标题';
         frameworkGroup.style.display = 'none';
         draftCard.style.display = 'none';
         critiqueCard.style.display = 'none';
@@ -779,18 +715,14 @@ function renderItems() {
 function renderAll() {
     renderCategories();
     renderItems();
-    if (!currentItem) {
-        clearForm();
-    } else {
-        updateMetaInfo();
-    }
+    if (currentItem) loadItemToEditor(currentItem);
+    else clearForm();
 }
 
 function loadItemToEditor(item) {
     currentItem = item;
-    isPreviewHidden = false;
+    editorContainer.style.display = 'block';
     applyTemplateLayout(item.template || 'writing');
-    itemTitleEl.value = item.title || '';
     itemFrameworkEl.value = item.framework || '';
     draftEl.value = item.draft || '';
     bodyEl.value = item.body || '';
@@ -802,15 +734,13 @@ function loadItemToEditor(item) {
 
 function clearForm() {
     currentItem = null;
-    isPreviewHidden = false;
-    applyTemplateLayout('writing');
-    itemTitleEl.value = '';
+    editorContainer.style.display = 'none';
     itemFrameworkEl.value = '';
     draftEl.value = '';
     bodyEl.value = '';
     critiqueEl.value = '';
     refEl.value = '';
-    metaInfo.innerHTML = '<span>创建: --</span><span>修改: --</span>';
+    updateMetaInfo();
     setTimeout(resizeAllTextareas, 0);
 }
 
@@ -832,10 +762,7 @@ function autoSaveCurrentContent() {
     const found = items.find(it => it.id === currentItem.id);
 
     if (found) {
-        if (!isPreviewHidden) {
-            found.title = itemTitleEl.value.trim() || currentItem.title;
-            found.framework = itemFrameworkEl.value;
-        }
+        found.framework = itemFrameworkEl.value;
         found.draft = draftEl.value;
         found.body = bodyEl.value;
         found.critique = critiqueEl.value;
@@ -849,34 +776,19 @@ function autoSaveCurrentContent() {
     }
 }
 
-function restorePreviewIfNeeded() {
-    if (isPreviewHidden && currentItem) {
-        isPreviewHidden = false;
-        itemTitleEl.value = currentItem.title || '';
-        itemFrameworkEl.value = currentItem.framework || '';
-        setTimeout(() => autoResizeTextarea(itemFrameworkEl), 0);
-    }
-}
 
-infoCard.addEventListener('click', restorePreviewIfNeeded);
-itemTitleEl.addEventListener('focus', restorePreviewIfNeeded);
-itemFrameworkEl.addEventListener('focus', restorePreviewIfNeeded);
-
-function addCategory(name) {
-    name = name.trim();
-    if (!name) return;
-    if (data.categories.includes(name)) {
-        alert('分类已存在');
-        return;
-    }
-    data.categories.push(name);
-    data.items[name] = [];
-    saveData();
-    currentCategory = name;
+function addCategory() {
+    const name = prompt('输入分类');
+    if (!name || !name.trim()) return;
+    const cleanName = name.trim();
+    if (data.categories.includes(cleanName)) { alert('分类已存在'); return; }
+    data.categories.push(cleanName);
+    data.items[cleanName] = [];
+    currentCategory = cleanName;
     currentItem = null;
+    saveData();
     clearForm();
     renderAll();
-    newCategoryInput.value = '';
 }
 
 function renameCategory(oldName, newName) {
@@ -910,28 +822,13 @@ function deleteCategory(name) {
 }
 
 function addItem(title) {
-    title = title.trim();
-    if (!title) return;
-    const template = templateSelect.value || 'writing';
+    const templateMap = { '📝 写作':'writing', '🧠 逻辑':'logic', '🌙 日常':'daily', '📚 参考':'reference' };
+    const template = templateMap[currentCategory] || 'writing';
     const items = data.items[currentCategory] || [];
-
-    const newItem = normalizeItem({
-        id: generateId(),
-        template: template,
-        title: title,
-        framework: '',
-        draft: '',
-        body: '',
-        critique: '',
-        ref: '',
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-    });
-
+    const newItem = normalizeItem({ id:generateId(), template, title, framework:'', draft:'', body:'', critique:'', ref:'', createdAt:Date.now(), updatedAt:Date.now() });
     items.push(newItem);
-    saveData();
-    newTitleInput.value = '';
     currentItem = newItem;
+    saveData();
     loadItemToEditor(newItem);
     renderAll();
 }
@@ -956,28 +853,15 @@ function renameItem(item) {
         item.updatedAt = Date.now();
         saveData();
         if (currentItem && currentItem.id === item.id) {
-            if (!isPreviewHidden) itemTitleEl.value = item.title;
             updateMetaInfo();
         }
         renderAll();
     }
 }
 
-document.getElementById('addCategoryBtn').addEventListener('click', () => {
-    addCategory(newCategoryInput.value);
-});
+document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
 
-newCategoryInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') addCategory(newCategoryInput.value);
-});
-
-document.getElementById('addBtn').addEventListener('click', () => {
-    addItem(newTitleInput.value);
-});
-
-newTitleInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') addItem(newTitleInput.value);
-});
+document.getElementById('addBtn').addEventListener('click', () => { const title = prompt('作品名'); if (title && title.trim()) addItem(title.trim()); });
 
 searchInput.addEventListener('input', () => {
     searchQuery = searchInput.value;
@@ -985,7 +869,7 @@ searchInput.addEventListener('input', () => {
 });
 
 let saveTimer = null;
-[itemTitleEl, itemFrameworkEl, draftEl, bodyEl, critiqueEl, refEl].forEach(el => {
+[itemFrameworkEl, draftEl, bodyEl, critiqueEl, refEl].forEach(el => {
     el.addEventListener('input', () => {
         if (saveTimer) clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
@@ -995,42 +879,10 @@ let saveTimer = null;
     });
 });
 
-document.getElementById('copyBtn').addEventListener('click', () => {
-    const text = bodyEl.value.trim() || draftEl.value.trim();
-    if (!text) {
-        alert('当前内容为空');
-        return;
-    }
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copyBtn');
-        const orig = btn.textContent;
-        btn.textContent = '✅ 已复制内容';
-        setTimeout(() => btn.textContent = orig, 1500);
-    }).catch(() => {
-        bodyEl.select();
-        document.execCommand('copy');
-        alert('已复制');
-    });
-});
-
-document.getElementById('renameBtn').addEventListener('click', () => {
-    if (!currentItem) {
-        alert('请先选择一个作品');
-        return;
-    }
-    renameItem(currentItem);
-});
-
-document.getElementById('clearBtn').addEventListener('click', () => {
-    isPreviewHidden = true;
-    itemTitleEl.value = '';
-    itemFrameworkEl.value = '';
-    setTimeout(() => autoResizeTextarea(itemFrameworkEl), 0);
-});
 
 document.getElementById('exportBtn').addEventListener('click', () => {
     const exportData = {
-        version: '0.9',
+        version: '1.0',
         exportedAt: Date.now(),
         data: data
     };
@@ -1040,7 +892,7 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     const a = document.createElement('a');
     a.href = url;
     const dateStr = new Date().toISOString().slice(0, 10);
-    a.download = `小托盘备份_v0.9_${dateStr}.json`;
+    a.download = `小托盘备份_v1.0_${dateStr}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1104,14 +956,20 @@ darkToggle.addEventListener('click', () => {
     localStorage.setItem('xiaotuopan_dark', isDark);
 });
 
+
+document.querySelectorAll('.copy-field-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const target = document.getElementById(btn.dataset.copyTarget);
+        if (!target) return;
+        const text = target.value || '';
+        if (!text) { btn.textContent='—'; setTimeout(()=>btn.textContent='📋',800); return; }
+        try { await navigator.clipboard.writeText(text); } catch { target.select(); document.execCommand('copy'); }
+        btn.textContent='✓'; setTimeout(()=>btn.textContent='📋',800);
+    });
+});
+
 renderAll();
 
-if (data.items[currentCategory] && data.items[currentCategory].length > 0) {
-    const first = data.items[currentCategory][0];
-    currentItem = first;
-    loadItemToEditor(first);
-    renderAll();
-}
 </script>
 </body>
 </html>
